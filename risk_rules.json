@@ -1,0 +1,418 @@
+{
+  "critical_patterns": [
+    {
+      "pattern": "rm\\s+.*-[a-zA-Z]*r[a-zA-Z]*f[a-zA-Z]*\\s+/(?!\\w)",
+      "level": "CRITICAL",
+      "title": "Full System Deletion",
+      "message": "This command will recursively and forcefully delete ALL files starting from the root directory. This will destroy your entire operating system and all data. There is NO recovery without a full system backup."
+    },
+    {
+      "pattern": "rm\\s+.*-[a-zA-Z]*f[a-zA-Z]*r[a-zA-Z]*\\s+/(?!\\w)",
+      "level": "CRITICAL",
+      "title": "Full System Deletion",
+      "message": "This command will recursively and forcefully delete ALL files starting from the root directory. This will destroy your entire operating system and all data. There is NO recovery without a full system backup."
+    },
+    {
+      "pattern": "rm\\s+-rf\\s+/",
+      "level": "CRITICAL",
+      "title": "Root Filesystem Destruction",
+      "message": "Deletes the entire root filesystem. This is one of the most dangerous commands in Linux. Your system will be completely destroyed."
+    },
+    {
+      "pattern": "rm\\s+-fr\\s+/",
+      "level": "CRITICAL",
+      "title": "Root Filesystem Destruction",
+      "message": "Deletes the entire root filesystem. Your system will be completely destroyed."
+    },
+    {
+      "pattern": ":\\(\\)\\s*\\{\\s*:\\|:&\\s*\\}\\s*;\\s*:",
+      "level": "CRITICAL",
+      "title": "Fork Bomb Detected",
+      "message": "This is a FORK BOMB. It creates an exponentially growing number of processes that will completely freeze and crash your system. Do NOT execute this."
+    },
+    {
+      "pattern": "\\bdd\\b.*if=/dev/(zero|random|urandom).*of=/dev/(sd|hd|nvme|vd)",
+      "level": "CRITICAL",
+      "title": "Disk Overwrite",
+      "message": "This command will overwrite your physical disk with zeros or random data. ALL DATA ON THAT DISK WILL BE PERMANENTLY DESTROYED. This is irreversible."
+    },
+    {
+      "pattern": "\\bdd\\b.*of=/dev/(sd[a-z]|hd[a-z]|nvme[0-9]|vd[a-z])\\b",
+      "level": "CRITICAL",
+      "title": "Direct Disk Write",
+      "message": "Writing directly to a disk device. This can destroy partition tables, filesystems, and all data on the device."
+    },
+    {
+      "pattern": "\\bmkfs\\b",
+      "level": "CRITICAL",
+      "title": "Filesystem Format",
+      "message": "mkfs creates a new filesystem on a device, erasing ALL existing data on that partition or disk. Ensure you are targeting the correct device."
+    },
+    {
+      "pattern": "\\bformat\\b.*(/dev/|[A-Z]:)",
+      "level": "CRITICAL",
+      "title": "Disk Format",
+      "message": "This will format a disk or partition, permanently destroying all data on it."
+    },
+    {
+      "pattern": "chmod\\s+.*-[Rr].*777\\s+/(?!\\w)",
+      "level": "CRITICAL",
+      "title": "Recursive 777 on Root",
+      "message": "Setting 777 permissions recursively on the root filesystem removes all security restrictions. Any user or process can read, write, or execute any file. This is a severe security vulnerability."
+    },
+    {
+      "pattern": "chmod\\s+777\\s+/(?!\\w)",
+      "level": "CRITICAL",
+      "title": "Full Permissions on Root",
+      "message": "Setting 777 on the root directory removes access controls. This is a critical security risk."
+    },
+    {
+      "pattern": "mv\\s+.*\\s+/dev/null",
+      "level": "CRITICAL",
+      "title": "Moving Files to /dev/null",
+      "message": "Moving files to /dev/null permanently destroys them. Unlike deletion, there is no way to recover files sent to /dev/null."
+    },
+    {
+      "pattern": "cat\\s+/dev/(zero|urandom|random)\\s+>\\s+/dev/(sd|hd|nvme|vd)",
+      "level": "CRITICAL",
+      "title": "Disk Overwrite via Cat",
+      "message": "Piping /dev/zero or random data to a disk device will destroy all data on that device permanently."
+    },
+    {
+      "pattern": ">\\s*/dev/(sd[a-z]|hd[a-z]|nvme[0-9])",
+      "level": "CRITICAL",
+      "title": "Redirect to Disk Device",
+      "message": "Redirecting output to a disk device will overwrite the disk's data, potentially destroying the filesystem."
+    },
+    {
+      "pattern": "\\bfdisk\\b.*-l.*/dev/(sd[a-z]|nvme)",
+      "level": "LOW",
+      "title": "Listing Disk Partitions",
+      "message": "fdisk -l is read-only and safe for listing partitions. No data will be modified."
+    },
+    {
+      "pattern": "\\bfdisk\\b(?!\\s+-l)",
+      "level": "HIGH",
+      "title": "Partition Table Editor",
+      "message": "fdisk can modify disk partition tables. Incorrect usage can make your data inaccessible. Make sure you know the correct device before proceeding."
+    },
+    {
+      "pattern": "\\bparted\\b(?!\\s+(print|help|unit|select))",
+      "level": "HIGH",
+      "title": "Partition Manipulation",
+      "message": "parted can resize, delete, and create disk partitions. Mistakes can lead to data loss. Always backup important data first."
+    }
+  ],
+  "high_patterns": [
+    {
+      "pattern": "\\brm\\b.*-[a-zA-Z]*r[a-zA-Z]*",
+      "level": "HIGH",
+      "title": "Recursive File Deletion",
+      "message": "This will recursively delete files and directories. Deleted files cannot be recovered from the Recycle Bin — they are permanently removed. Double-check the target path before executing."
+    },
+    {
+      "pattern": "\\brm\\b.*-[a-zA-Z]*f[a-zA-Z]*",
+      "level": "HIGH",
+      "title": "Forced File Deletion",
+      "message": "The -f flag suppresses all confirmation prompts. Files will be deleted without asking for confirmation."
+    },
+    {
+      "pattern": "\\bshutdown\\b",
+      "level": "HIGH",
+      "title": "System Shutdown",
+      "message": "This will shut down the system. Save all open work before executing. A scheduled shutdown can be cancelled with 'shutdown -c'."
+    },
+    {
+      "pattern": "\\breboot\\b",
+      "level": "HIGH",
+      "title": "System Reboot",
+      "message": "This will reboot the system. All unsaved work will be lost. Make sure to save all open files first."
+    },
+    {
+      "pattern": "\\bhalt\\b",
+      "level": "HIGH",
+      "title": "System Halt",
+      "message": "This will halt the system, stopping all processes. Ensure all work is saved before running."
+    },
+    {
+      "pattern": "\\bpoweroff\\b",
+      "level": "HIGH",
+      "title": "System Power Off",
+      "message": "This will power off the machine immediately. Save all open work first."
+    },
+    {
+      "pattern": "\\bkill\\b.*-9",
+      "level": "HIGH",
+      "title": "Force Kill Process",
+      "message": "SIGKILL (-9) forcefully terminates a process without allowing it to clean up. The process cannot save state, close files, or release resources gracefully. Use SIGTERM first when possible."
+    },
+    {
+      "pattern": "\\bkillall\\b",
+      "level": "HIGH",
+      "title": "Kill All Matching Processes",
+      "message": "killall sends a signal to ALL processes matching the specified name. Be careful not to accidentally kill system-critical processes."
+    },
+    {
+      "pattern": "\\bchmod\\b.*777",
+      "level": "HIGH",
+      "title": "World-Writable Permissions",
+      "message": "Permission 777 allows any user on the system to read, write, and execute this file. This is a security risk, especially for scripts, configuration files, and directories."
+    },
+    {
+      "pattern": "\\bchmod\\b.*666",
+      "level": "MEDIUM",
+      "title": "World-Readable/Writable File",
+      "message": "Permission 666 allows any user to read and write to this file. Avoid this for sensitive files."
+    },
+    {
+      "pattern": "\\bchown\\b.*root",
+      "level": "HIGH",
+      "title": "Changing Ownership to Root",
+      "message": "Changing file ownership to root can affect system security. Ensure this is intentional."
+    },
+    {
+      "pattern": "\\bdd\\b",
+      "level": "HIGH",
+      "title": "Low-Level Disk Operation",
+      "message": "dd reads and writes data at a low level and can overwrite disks, partitions, and filesystems. Verify the 'if' (input) and 'of' (output) parameters carefully. A mistake can be catastrophic."
+    },
+    {
+      "pattern": "\\bsudo\\b.*rm",
+      "level": "HIGH",
+      "title": "Privileged File Deletion",
+      "message": "Running rm with sudo gives it root privileges, allowing deletion of system files and protected directories. Be very careful about what path you are deleting."
+    },
+    {
+      "pattern": "\\bcrontab\\b.*-r",
+      "level": "HIGH",
+      "title": "Remove All Cron Jobs",
+      "message": "crontab -r removes ALL scheduled cron jobs for the current user. This is irreversible without a backup."
+    },
+    {
+      "pattern": "\\buserdel\\b",
+      "level": "HIGH",
+      "title": "Delete User Account",
+      "message": "userdel deletes a user account. The -r flag will also remove their home directory and mail spool. This action may be difficult to reverse."
+    },
+    {
+      "pattern": "\\bgroupdel\\b",
+      "level": "MEDIUM",
+      "title": "Delete Group",
+      "message": "Deleting a group may affect file permissions for files owned by that group."
+    },
+    {
+      "pattern": "\\biptables\\b.*-F",
+      "level": "HIGH",
+      "title": "Flush Firewall Rules",
+      "message": "Flushing iptables rules removes ALL firewall rules, potentially exposing your system to network threats if applied on a live server."
+    },
+    {
+      "pattern": "\\bufw\\b.*disable",
+      "level": "HIGH",
+      "title": "Disable Firewall",
+      "message": "Disabling the firewall removes all network traffic restrictions. Only do this in a trusted environment."
+    },
+    {
+      "pattern": "\\bsetenforce\\s+0",
+      "level": "HIGH",
+      "title": "Disable SELinux Enforcement",
+      "message": "Setting SELinux to permissive mode disables mandatory access controls, reducing system security."
+    },
+    {
+      "pattern": "\\bsysctl\\b.*net\\.ipv4\\.ip_forward\\s*=\\s*1",
+      "level": "MEDIUM",
+      "title": "Enable IP Forwarding",
+      "message": "Enabling IP forwarding allows the system to route network packets. This can be a security concern if not intentional."
+    }
+  ],
+  "medium_patterns": [
+    {
+      "pattern": "\\brm\\b",
+      "level": "MEDIUM",
+      "title": "File Deletion",
+      "message": "rm permanently deletes files. Unlike moving to Trash, deleted files cannot easily be recovered. Always verify the target path."
+    },
+    {
+      "pattern": "\\bmv\\b",
+      "level": "LOW",
+      "title": "Move / Rename Files",
+      "message": "mv moves or renames files. If the destination already exists, it will be silently overwritten unless -i (interactive) is used."
+    },
+    {
+      "pattern": "\\bchmod\\b",
+      "level": "MEDIUM",
+      "title": "Change File Permissions",
+      "message": "Changing file permissions affects who can read, write, or execute the file. Incorrect permissions can cause security issues or break applications."
+    },
+    {
+      "pattern": "\\bchown\\b",
+      "level": "MEDIUM",
+      "title": "Change File Ownership",
+      "message": "Changing ownership of a file may make it inaccessible to the previous owner or affect application behavior."
+    },
+    {
+      "pattern": "\\bsystemctl\\b.*(stop|disable|mask)",
+      "level": "MEDIUM",
+      "title": "Stopping or Disabling Service",
+      "message": "Stopping or disabling a service may affect system functionality. Ensure you know what the service does before disabling it."
+    },
+    {
+      "pattern": "\\bsystemctl\\b.*enable",
+      "level": "LOW",
+      "title": "Enabling Service at Boot",
+      "message": "This will configure the service to start automatically on boot. Make sure you want this service running persistently."
+    },
+    {
+      "pattern": "\\bapt(-get)?\\b.*(remove|purge|autoremove)",
+      "level": "MEDIUM",
+      "title": "Package Removal",
+      "message": "Removing packages may uninstall software dependencies needed by other applications. Check what will be removed before confirming."
+    },
+    {
+      "pattern": "\\bdnf\\b.*(remove|erase)",
+      "level": "MEDIUM",
+      "title": "Package Removal",
+      "message": "Removing packages may affect other installed software. Review the list of packages to be removed carefully."
+    },
+    {
+      "pattern": "\\bpacman\\b.*-R",
+      "level": "MEDIUM",
+      "title": "Package Removal (Arch)",
+      "message": "Removing packages may affect dependencies. Use -Rns to remove the package, its dependencies, and config files."
+    },
+    {
+      "pattern": "\\bpip\\b.*(uninstall|install\\s+--force)",
+      "level": "LOW",
+      "title": "Python Package Change",
+      "message": "Modifying Python packages may affect virtual environments or other Python applications on the system."
+    },
+    {
+      "pattern": "\\bcurl\\b.*\\|\\s*(bash|sh)",
+      "level": "HIGH",
+      "title": "Pipe to Shell (curl | bash)",
+      "message": "Downloading and executing scripts directly from the internet is extremely dangerous. The script could contain malicious code. Always review scripts before executing them."
+    },
+    {
+      "pattern": "\\bwget\\b.*-O\\s*-.*\\|\\s*(bash|sh)",
+      "level": "HIGH",
+      "title": "Pipe to Shell (wget | bash)",
+      "message": "Executing downloaded scripts directly is a security risk. Review the script content at the URL before executing."
+    },
+    {
+      "pattern": "\\bnc\\b.*-e|\\bnetcat\\b.*-e",
+      "level": "HIGH",
+      "title": "Netcat Shell Execution",
+      "message": "The -e flag with netcat can create a reverse shell, often used for remote code execution. This may indicate a security exploit or backdoor."
+    },
+    {
+      "pattern": "\\bsudo\\b.*-s",
+      "level": "HIGH",
+      "title": "Sudo Shell Access",
+      "message": "sudo -s opens a root shell, giving you unrestricted superuser access. All subsequent commands in this shell run as root."
+    },
+    {
+      "pattern": "\\bsu\\b\\s+-?\\s*$",
+      "level": "MEDIUM",
+      "title": "Switch to Root",
+      "message": "su without arguments switches to the root account. Running as root allows unrestricted access to the system."
+    },
+    {
+      "pattern": "\\bpasswd\\b",
+      "level": "LOW",
+      "title": "Changing Password",
+      "message": "This will change a user account password. With sudo, you can change any user's password."
+    },
+    {
+      "pattern": "\\bhistory\\s*-c",
+      "level": "MEDIUM",
+      "title": "Clearing Command History",
+      "message": "Clearing command history removes the record of commands run in the shell. This can affect auditability."
+    },
+    {
+      "pattern": "\\btruncate\\b|\\bfallocate\\b",
+      "level": "MEDIUM",
+      "title": "File Size Manipulation",
+      "message": "truncate or fallocate can resize or zero out files. If pointed at the wrong file, data can be lost."
+    },
+    {
+      "pattern": "\\bumount\\b",
+      "level": "MEDIUM",
+      "title": "Unmounting Filesystem",
+      "message": "Unmounting a filesystem while it is in use can cause data loss. Ensure no processes are accessing the mount before unmounting."
+    },
+    {
+      "pattern": "\\bfsck\\b",
+      "level": "MEDIUM",
+      "title": "Filesystem Check",
+      "message": "Running fsck on a mounted filesystem can cause data corruption. Always unmount the filesystem or run fsck from a live environment."
+    },
+    {
+      "pattern": "\\bsystemctl\\b.*(poweroff|reboot|halt|suspend)",
+      "level": "HIGH",
+      "title": "System State Change via Systemctl",
+      "message": "This will change the power state of the system. Save all work before proceeding."
+    }
+  ],
+  "low_patterns": [
+    {
+      "pattern": "\\bsudo\\b",
+      "level": "LOW",
+      "title": "Superuser Privilege Escalation",
+      "message": "sudo executes the following command with root/superuser privileges. The command will have unrestricted access to the system."
+    },
+    {
+      "pattern": "\\bcrontab\\b",
+      "level": "LOW",
+      "title": "Scheduling Cron Job",
+      "message": "crontab manages scheduled tasks. Incorrect entries can cause unintended periodic actions on your system."
+    },
+    {
+      "pattern": "\\bssh\\b",
+      "level": "LOW",
+      "title": "Remote Connection",
+      "message": "SSH connects to a remote host. Ensure you trust the destination host before connecting."
+    },
+    {
+      "pattern": "\\bscp\\b|\\brsync\\b",
+      "level": "LOW",
+      "title": "Remote File Transfer",
+      "message": "This transfers files to or from a remote host. Verify the source and destination paths carefully."
+    },
+    {
+      "pattern": "\\bexport\\b",
+      "level": "LOW",
+      "title": "Setting Environment Variable",
+      "message": "export sets an environment variable that will be available to child processes. Some variables like PATH can affect system behavior."
+    },
+    {
+      "pattern": "\\bapt(-get)?\\b.*(install|upgrade|dist-upgrade)",
+      "level": "LOW",
+      "title": "Package Installation / Upgrade",
+      "message": "Installing or upgrading packages modifies your system. Only install packages from trusted sources."
+    },
+    {
+      "pattern": "\\bdnf\\b.*(install|upgrade|update)",
+      "level": "LOW",
+      "title": "Package Installation / Upgrade",
+      "message": "Installing or upgrading packages modifies your system. Ensure packages are from official repositories."
+    },
+    {
+      "pattern": "\\bpacman\\b.*-S",
+      "level": "LOW",
+      "title": "Package Installation (Arch)",
+      "message": "Installing packages with pacman modifies the system. Packages from the AUR should be reviewed before installation."
+    },
+    {
+      "pattern": "\\bnohup\\b",
+      "level": "LOW",
+      "title": "Run Command in Background",
+      "message": "nohup runs a command that continues after you log out. The process will keep running in the background."
+    },
+    {
+      "pattern": "\\bsource\\b|\\b\\.\\s",
+      "level": "LOW",
+      "title": "Sourcing Script in Current Shell",
+      "message": "Sourcing a script executes it in the current shell environment. Variables and functions defined in the script will affect your current session."
+    }
+  ]
+}

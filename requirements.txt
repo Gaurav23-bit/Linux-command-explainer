@@ -1,0 +1,10 @@
+# Linux Command Explainer & Risk Detector
+# No third-party dependencies required.
+# All dependencies are part of the Python standard library.
+#
+# Runtime requirements:
+#   - Python 3.10 or newer
+#   - tkinter (usually bundled with Python; see README if missing)
+#
+# Optional (for development / testing only):
+#   pytest>=7.0
