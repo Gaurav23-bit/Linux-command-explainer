@@ -7,7 +7,7 @@ Run with: python app.py
 import sys
 import os
 
-# All files live in the same directory as app.py
+# All files live in the same directory 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
